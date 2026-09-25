@@ -2,7 +2,7 @@ name: terraform-apply
 
 on:
   push:
-    branches: [main]      # corre cuando algo entra a main (un merge)
+    branches: [main]
 
 permissions:
   id-token: write
@@ -30,6 +30,41 @@ jobs:
 
       - name: Plan
         run: terraform plan -input=false -no-color -out=tfplan
+
+      - name: Apply
+        run: terraform apply -input=false tfplan
+
+  apply-prod:
+    needs: apply-dev
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.16.2
+          terraform_wrapper: false
+
+      - name: Ver claims del token
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken('sts.amazonaws.com');
+            const c = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
+            console.log(JSON.stringify({ sub: c.sub, environment: c.environment }, null, 2));
+
+      - name: Autenticar en AWS con OIDC (rol de prod)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_PROD }}
+          aws-region: us-east-1
+
+      - name: Init (backend de prod)
+        run: terraform init -input=false -backend-config=prod.s3.tfbackend
+
+      - name: Plan
+        run: terraform plan -input=false -no-color -var-file=prod.tfvars -out=tfplan
 
       - name: Apply
         run: terraform apply -input=false tfplan
