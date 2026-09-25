@@ -5,9 +5,13 @@ on:
     branches: [main]
 
 permissions:
-  id-token: write        # pedir el token OIDC
-  contents: read         # leer el código
-  pull-requests: write   # escribir el comentario en el PR
+  id-token: write
+  contents: read
+  pull-requests: write
+
+concurrency:                                                 # 👈 NUEVO CI-5
+  group: plan-pr-${{ github.event.pull_request.number }}     # 👈 NUEVO CI-5: una cola por PR
+  cancel-in-progress: true                                   # 👈 NUEVO CI-5: un push nuevo cancela el plan viejo
 
 jobs:
   plan:
@@ -19,7 +23,7 @@ jobs:
       - name: Instalar Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.16.2   # la misma versión que usas en local
+          terraform_version: 1.16.2
           terraform_wrapper: false
 
       - name: Ver claims del token
@@ -47,7 +51,7 @@ jobs:
 
       - name: Plan
         run: |
-          terraform plan -input=false -no-color -out=tfplan
+          terraform plan -input=false -no-color -lock-timeout=3m -out=tfplan   # 👈 NUEVO CI-5: -lock-timeout=3m
           terraform show -no-color tfplan > plan.txt
 
       - name: Comentar el plan en el PR

@@ -8,6 +8,10 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: terraform-apply
+  cancel-in-progress: false
+
 jobs:
   apply-dev:
     runs-on: ubuntu-latest
