@@ -1,0 +1,19 @@
+name: prueba-escape
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  colarse:
+    runs-on: ubuntu-latest
+    # SIN environment: production
+    steps:
+      - name: Intentar asumir el rol de prod
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::882303368223:role/github-tf-exp-prod
+          aws-region: us-east-1

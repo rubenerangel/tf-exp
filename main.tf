@@ -8,14 +8,19 @@ provider "aws" {
   region = "us-east-1"
 }
 
+variable "param_prefix" {
+  type    = string
+  default = "/exp"
+}
+
 resource "aws_ssm_parameter" "a" {
-  name  = "/exp/a"
+  name  = "${var.param_prefix}/a"
   type  = "String"
   value = "hola-ci"
 }
 
 resource "aws_ssm_parameter" "b" {
-  name  = "/exp/b"
+  name  = "${var.param_prefix}/b"
   type  = "String"
   value = "mundo"
 }
