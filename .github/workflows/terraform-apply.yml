@@ -1,0 +1,35 @@
+name: terraform-apply
+
+on:
+  push:
+    branches: [main]      # corre cuando algo entra a main (un merge)
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  apply-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.16.2
+          terraform_wrapper: false
+
+      - name: Autenticar en AWS con OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_DEV }}
+          aws-region: us-east-1
+
+      - name: Init (backend de dev)
+        run: terraform init -input=false -backend-config=dev.s3.tfbackend
+
+      - name: Plan
+        run: terraform plan -input=false -no-color -out=tfplan
+
+      - name: Apply
+        run: terraform apply -input=false tfplan
