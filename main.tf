@@ -11,7 +11,7 @@ provider "aws" {
 resource "aws_ssm_parameter" "a" {
   name  = "/exp/a"
   type  = "String"
-  value = "hola-4"
+  value = "hola-ci"
 }
 
 resource "aws_ssm_parameter" "b" {
