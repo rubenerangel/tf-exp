@@ -1,0 +1,18 @@
+# 👈 NUEVO CI-5: archivo completo, solo para la parte B
+name: concurrency-test
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: prueba-cola
+  cancel-in-progress: false
+
+jobs:
+  esperar:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Inicio: $(date)"
+          sleep 90
+          echo "Fin: $(date)"
