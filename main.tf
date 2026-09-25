@@ -11,7 +11,7 @@ provider "aws" {
 resource "aws_ssm_parameter" "a" {
   name  = "/exp/a"
   type  = "String"
-  value = "hola-ci"
+  value = var.no_existe
 }
 
 resource "aws_ssm_parameter" "b" {
